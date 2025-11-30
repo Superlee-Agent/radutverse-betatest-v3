@@ -13,7 +13,7 @@ import {
   PILFlavor,
   WIP_TOKEN_ADDRESS,
 } from "@story-protocol/core-sdk";
-import { createWalletClient, createPublicClient, custom, parseEther, http, type Account, type Transport } from "viem";
+import { createWalletClient, custom, parseEther, http, type Account } from "viem";
 import {
   getLicenseSettingsByGroup,
   requiresSelfieVerification,
