@@ -452,6 +452,18 @@ export function useIPRegistrationAgent() {
               ),
               currency: WIP_TOKEN_ADDRESS,
             }),
+            licensingConfig: {
+              isSet: true,
+              mintingFee: parseEther(String(licenseSettings.licensePrice || 0)),
+              licensingHook:
+                "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              hookData: "0x" as `0x${string}`,
+              commercialRevShare: Number(licenseSettings.revShare) || 0,
+              disabled: false,
+              expectMinimumGroupRewardShare: 0,
+              expectGroupRewardPool:
+                "0x0000000000000000000000000000000000000000" as `0x${string}`,
+            },
           },
         ];
 
