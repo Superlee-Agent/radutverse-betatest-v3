@@ -19,6 +19,8 @@ import {
   parseEther,
   http,
   type Account,
+  publicActions,
+  erc20Abi,
 } from "viem";
 import {
   getLicenseSettingsByGroup,
@@ -468,6 +470,40 @@ export function useIPRegistrationAgent() {
         ];
 
         setRegisterState((p) => ({ ...p, status: "minting", progress: 75 }));
+
+        // Approve WIP token spending for SPG contract before minting
+        const mintingFeeWei = parseEther(
+          String(licenseSettings.licensePrice || 0),
+        );
+        if (mintingFeeWei > 0n) {
+          try {
+            if (ethereumProvider) {
+              // Use connected wallet's client for approval
+              const walletClientForApproval = createWalletClient({
+                transport: custom(ethereumProvider),
+              });
+              await walletClientForApproval.writeContract({
+                address: WIP_TOKEN_ADDRESS as `0x${string}`,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [spg as `0x${string}`, mintingFeeWei],
+              } as any);
+            } else {
+              // Use story client's account to write approval
+              const wipApprovalHash = await story.client.writeContract({
+                address: WIP_TOKEN_ADDRESS as `0x${string}`,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [spg as `0x${string}`, mintingFeeWei],
+                account: story.account,
+              } as any);
+              console.log("WIP approval tx:", wipApprovalHash);
+            }
+          } catch (approvalError) {
+            console.warn("Token approval failed:", approvalError);
+            // Continue anyway - some contracts may not require explicit approval
+          }
+        }
 
         const result: any =
           await story.ipAsset.mintAndRegisterIpAssetWithPilTerms({
