@@ -1,8 +1,8 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { StoryClient, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
-import { createWalletClient, custom, parseEther, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { createWalletClient, custom, parseEther, http, type Account } from "viem";
+import { privateKeyToAccount, toAccount } from "viem/accounts";
 import { keccakOfJson } from "@/lib/utils/crypto";
 import { Address } from "viem";
 
@@ -193,8 +193,40 @@ const LicensingFormComponent = (
 
       let storyClient: StoryClient;
       if (ethProvider) {
+        // Create a custom account that delegates signing to the wallet provider
+        const walletAccount = toAccount({
+          address: addr as `0x${string}`,
+          async signMessage({ message }) {
+            const messageContent = typeof message === 'string'
+              ? message
+              : message.raw instanceof Uint8Array
+              ? new TextDecoder().decode(message.raw)
+              : String(message.raw);
+
+            const signature = await ethProvider.request({
+              method: 'personal_sign',
+              params: [messageContent, addr],
+            });
+            return signature as `0x${string}`;
+          },
+          async signTransaction(transaction) {
+            const signedTx = await ethProvider.request({
+              method: 'eth_signTransaction',
+              params: [transaction],
+            });
+            return signedTx as `0x${string}`;
+          },
+          async signTypedData(typedData) {
+            const signature = await ethProvider.request({
+              method: 'eth_signTypedData_v4',
+              params: [addr, JSON.stringify(typedData)],
+            });
+            return signature as `0x${string}`;
+          },
+        });
+
         storyClient = StoryClient.newClient({
-          account: addr,
+          account: walletAccount,
           transport: custom(ethProvider),
           chainId: 1514,
         });
