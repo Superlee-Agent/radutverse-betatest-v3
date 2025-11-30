@@ -13,7 +13,7 @@ import {
   PILFlavor,
   WIP_TOKEN_ADDRESS,
 } from "@story-protocol/core-sdk";
-import { createWalletClient, custom, parseEther, http, type Account } from "viem";
+import { createWalletClient, createPublicClient, custom, parseEther, http, type Account, type Transport } from "viem";
 import {
   getLicenseSettingsByGroup,
   requiresSelfieVerification,
@@ -362,8 +362,37 @@ export function useIPRegistrationAgent() {
               if (!a) throw new Error("No wallet address available");
               addr = a as string;
 
-              // Create account object from address for StoryClient
-              account = toAccount(addr);
+              // Create a custom account that delegates signing to the wallet provider
+              account = toAccount({
+                address: addr as `0x${string}`,
+                async signMessage({ message }) {
+                  const messageContent = typeof message === 'string'
+                    ? message
+                    : message.raw instanceof Uint8Array
+                    ? new TextDecoder().decode(message.raw)
+                    : String(message.raw);
+
+                  const signature = await provider.request({
+                    method: 'personal_sign',
+                    params: [messageContent, addr],
+                  });
+                  return signature as `0x${string}`;
+                },
+                async signTransaction(transaction) {
+                  const signedTx = await provider.request({
+                    method: 'eth_signTransaction',
+                    params: [transaction],
+                  });
+                  return signedTx as `0x${string}`;
+                },
+                async signTypedData(typedData) {
+                  const signature = await provider.request({
+                    method: 'eth_signTypedData_v4',
+                    params: [addr, JSON.stringify(typedData)],
+                  });
+                  return signature as `0x${string}`;
+                },
+              });
 
               story = StoryClient.newClient({
                 account: account,
