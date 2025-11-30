@@ -149,7 +149,7 @@ const LicensingFormComponent = (
       if (!demoMode && wallets && wallets.length > 0) {
         try {
           const wallet = wallets[0];
-          if (typeof wallet.getEthereumProvider === 'function') {
+          if (typeof wallet.getEthereumProvider === "function") {
             ethProvider = await wallet.getEthereumProvider();
           }
         } catch (err) {
