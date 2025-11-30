@@ -1,8 +1,14 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { StoryClient, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
-import { createWalletClient, custom, parseEther, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import {
+  createWalletClient,
+  custom,
+  parseEther,
+  http,
+  type Account,
+} from "viem";
+import { privateKeyToAccount, toAccount } from "viem/accounts";
 import { keccakOfJson } from "@/lib/utils/crypto";
 import { Address } from "viem";
 
@@ -193,8 +199,43 @@ const LicensingFormComponent = (
 
       let storyClient: StoryClient;
       if (ethProvider) {
+        // Create wallet client to use wallet's signing methods
+        const walletClient = createWalletClient({
+          transport: custom(ethProvider),
+        });
+
+        // Create a custom account that delegates signing to the wallet client
+        const walletAccount = toAccount({
+          address: addr as `0x${string}`,
+          async signMessage({ message }) {
+            const messageParam =
+              typeof message === "string"
+                ? message
+                : "raw" in message && message.raw instanceof Uint8Array
+                  ? { raw: message.raw as `0x${string}` }
+                  : message;
+
+            return await walletClient.signMessage({
+              account: addr as `0x${string}`,
+              message: messageParam,
+            } as any);
+          },
+          async signTransaction(transaction) {
+            return await walletClient.signTransaction(transaction as any);
+          },
+          async signTypedData(typedData) {
+            return await walletClient.signTypedData({
+              account: addr as `0x${string}`,
+              domain: typedData.domain as any,
+              types: typedData.types as any,
+              primaryType: typedData.primaryType as any,
+              message: typedData.message as any,
+            } as any);
+          },
+        });
+
         storyClient = StoryClient.newClient({
-          account: addr,
+          account: walletAccount,
           transport: custom(ethProvider),
           chainId: 1514,
         });

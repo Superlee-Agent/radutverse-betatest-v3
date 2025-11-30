@@ -13,14 +13,20 @@ import {
   PILFlavor,
   WIP_TOKEN_ADDRESS,
 } from "@story-protocol/core-sdk";
-import { createWalletClient, custom, parseEther, http } from "viem";
+import {
+  createWalletClient,
+  custom,
+  parseEther,
+  http,
+  type Account,
+} from "viem";
 import {
   getLicenseSettingsByGroup,
   requiresSelfieVerification,
   requiresSubmitReview,
   isAiGeneratedGroup,
 } from "@/lib/groupLicense";
-import { privateKeyToAccount } from "viem/accounts";
+import { privateKeyToAccount, toAccount } from "viem/accounts";
 
 export type RegisterState = {
   status:
@@ -99,10 +105,13 @@ export function useIPRegistrationAgent() {
             try {
               const formData = new FormData();
               formData.append("image", file);
-              const visionResponse = await fetch("/api/vision-image-detection", {
-                method: "POST",
-                body: formData,
-              });
+              const visionResponse = await fetch(
+                "/api/vision-image-detection",
+                {
+                  method: "POST",
+                  body: formData,
+                },
+              );
 
               if (visionResponse.ok) {
                 const visionCheck = await visionResponse.json();
@@ -146,14 +155,20 @@ export function useIPRegistrationAgent() {
               }
               return { found: false };
             } catch (hashError) {
-              console.warn("Hash whitelist check failed, continuing:", hashError);
+              console.warn(
+                "Hash whitelist check failed, continuing:",
+                hashError,
+              );
               return { found: false };
             }
           })(),
         ]);
 
         // Handle vision detection blocking
-        if (visionResult.status === "fulfilled" && visionResult.value?.blocked) {
+        if (
+          visionResult.status === "fulfilled" &&
+          visionResult.value?.blocked
+        ) {
           setRegisterState({
             status: "error",
             progress: 0,
@@ -314,6 +329,7 @@ export function useIPRegistrationAgent() {
             const provider = ethereumProvider;
             let addr: string | undefined;
             let story: any;
+            let account: Account | undefined;
             if (provider) {
               try {
                 const chainIdHex: string = await provider.request({
@@ -360,8 +376,39 @@ export function useIPRegistrationAgent() {
               const [a] = await walletClient.getAddresses();
               if (!a) throw new Error("No wallet address available");
               addr = a as string;
+
+              // Create a custom account that delegates signing to the wallet client
+              account = toAccount({
+                address: addr as `0x${string}`,
+                async signMessage({ message }) {
+                  const messageParam =
+                    typeof message === "string"
+                      ? message
+                      : "raw" in message && message.raw instanceof Uint8Array
+                        ? { raw: message.raw as `0x${string}` }
+                        : message;
+
+                  return await walletClient.signMessage({
+                    account: addr as `0x${string}`,
+                    message: messageParam,
+                  } as any);
+                },
+                async signTransaction(transaction) {
+                  return await walletClient.signTransaction(transaction as any);
+                },
+                async signTypedData(typedData) {
+                  return await walletClient.signTypedData({
+                    account: addr as `0x${string}`,
+                    domain: typedData.domain as any,
+                    types: typedData.types as any,
+                    primaryType: typedData.primaryType as any,
+                    message: typedData.message as any,
+                  } as any);
+                },
+              });
+
               story = StoryClient.newClient({
-                account: addr as any,
+                account: account,
                 transport: custom(provider),
                 chainId: 1514,
               });
@@ -379,7 +426,7 @@ export function useIPRegistrationAgent() {
               );
               addr = guestAccount.address;
               story = StoryClient.newClient({
-                account: guestAccount as any,
+                account: guestAccount,
                 transport: http(rpcUrl),
                 chainId: 1514,
               });
