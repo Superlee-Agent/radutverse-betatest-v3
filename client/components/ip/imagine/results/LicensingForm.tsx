@@ -146,9 +146,12 @@ const LicensingFormComponent = (
     try {
       // --- 2. SETUP WALLET & CLIENT ---
       let ethProvider: any = undefined;
-      if (!demoMode && wallets && wallets[0]?.getEthereumProvider) {
+      if (!demoMode && wallets && wallets.length > 0) {
         try {
-          ethProvider = await wallets[0].getEthereumProvider();
+          const wallet = wallets[0];
+          if (typeof wallet.getEthereumProvider === 'function') {
+            ethProvider = await wallet.getEthereumProvider();
+          }
         } catch (err) {
           console.warn("Failed to get ethereum provider:", err);
         }
@@ -161,7 +164,9 @@ const LicensingFormComponent = (
           });
           const [a] = await walletClient.getAddresses();
           if (a) addr = a;
-        } catch {}
+        } catch (err) {
+          console.warn("Failed to get wallet address from provider:", err);
+        }
       }
 
       if (!addr) {
@@ -176,7 +181,9 @@ const LicensingFormComponent = (
             );
             addr = guestAccount.address;
           }
-        } catch {}
+        } catch (err) {
+          console.warn("Failed to create guest account:", err);
+        }
       }
 
       if (!addr) throw new Error("Could not determine wallet address");
