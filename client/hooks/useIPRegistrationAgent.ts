@@ -469,6 +469,22 @@ export function useIPRegistrationAgent() {
 
         setRegisterState((p) => ({ ...p, status: "minting", progress: 75 }));
 
+        // Approve WIP token spending before minting
+        try {
+          const mintingFeeWei = parseEther(
+            String(licenseSettings.licensePrice || 0),
+          );
+          if (mintingFeeWei > 0n) {
+            await story.permission.setApprovalForAll({
+              ipAssetContract: spg as `0x${string}`,
+              operator: (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION as `0x${string}`,
+              approved: true,
+            });
+          }
+        } catch (approvalError) {
+          console.warn("Permission approval failed, continuing:", approvalError);
+        }
+
         const result: any =
           await story.ipAsset.mintAndRegisterIpAssetWithPilTerms({
             spgNftContract: spg as `0x${string}`,
