@@ -141,7 +141,7 @@ const ChatInput = ({
           type="button"
           data-file-input-btn
           disabled={attachmentLoading}
-          className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
+          className={`flex-shrink-0 p-2.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
           onClick={() => uploadRef.current?.click()}
           onPointerDown={(event) => event.preventDefault()}
           aria-label="Add attachment"
