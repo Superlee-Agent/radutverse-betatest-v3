@@ -2251,12 +2251,17 @@ const IpAssistant = () => {
                             if (
                               !guestMode &&
                               wallets &&
-                              wallets[0]?.getEthereumProvider
+                              wallets.length > 0
                             ) {
-                              ethProvider =
-                                await wallets[0].getEthereumProvider();
+                              const wallet = wallets[0];
+                              if (typeof wallet.getEthereumProvider === 'function') {
+                                ethProvider =
+                                  await wallet.getEthereumProvider();
+                              }
                             }
-                          } catch {}
+                          } catch (err) {
+                            console.warn("Failed to get ethereum provider:", err);
+                          }
                           const mf =
                             mintingFee === "" ? undefined : Number(mintingFee);
                           const rs =
