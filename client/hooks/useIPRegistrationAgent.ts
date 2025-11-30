@@ -13,14 +13,14 @@ import {
   PILFlavor,
   WIP_TOKEN_ADDRESS,
 } from "@story-protocol/core-sdk";
-import { createWalletClient, custom, parseEther, http } from "viem";
+import { createWalletClient, custom, parseEther, http, type Account } from "viem";
 import {
   getLicenseSettingsByGroup,
   requiresSelfieVerification,
   requiresSubmitReview,
   isAiGeneratedGroup,
 } from "@/lib/groupLicense";
-import { privateKeyToAccount } from "viem/accounts";
+import { privateKeyToAccount, toAccount } from "viem/accounts";
 
 export type RegisterState = {
   status:
@@ -314,6 +314,7 @@ export function useIPRegistrationAgent() {
             const provider = ethereumProvider;
             let addr: string | undefined;
             let story: any;
+            let account: Account | undefined;
             if (provider) {
               try {
                 const chainIdHex: string = await provider.request({
@@ -360,8 +361,12 @@ export function useIPRegistrationAgent() {
               const [a] = await walletClient.getAddresses();
               if (!a) throw new Error("No wallet address available");
               addr = a as string;
+
+              // Create account object from address for StoryClient
+              account = toAccount(addr);
+
               story = StoryClient.newClient({
-                account: addr as any,
+                account: account,
                 transport: custom(provider),
                 chainId: 1514,
               });
@@ -379,7 +384,7 @@ export function useIPRegistrationAgent() {
               );
               addr = guestAccount.address;
               story = StoryClient.newClient({
-                account: guestAccount as any,
+                account: guestAccount,
                 transport: http(rpcUrl),
                 chainId: 1514,
               });
