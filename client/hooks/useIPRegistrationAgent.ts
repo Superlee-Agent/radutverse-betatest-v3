@@ -13,7 +13,13 @@ import {
   PILFlavor,
   WIP_TOKEN_ADDRESS,
 } from "@story-protocol/core-sdk";
-import { createWalletClient, custom, parseEther, http, type Account } from "viem";
+import {
+  createWalletClient,
+  custom,
+  parseEther,
+  http,
+  type Account,
+} from "viem";
 import {
   getLicenseSettingsByGroup,
   requiresSelfieVerification,
@@ -99,10 +105,13 @@ export function useIPRegistrationAgent() {
             try {
               const formData = new FormData();
               formData.append("image", file);
-              const visionResponse = await fetch("/api/vision-image-detection", {
-                method: "POST",
-                body: formData,
-              });
+              const visionResponse = await fetch(
+                "/api/vision-image-detection",
+                {
+                  method: "POST",
+                  body: formData,
+                },
+              );
 
               if (visionResponse.ok) {
                 const visionCheck = await visionResponse.json();
@@ -146,14 +155,20 @@ export function useIPRegistrationAgent() {
               }
               return { found: false };
             } catch (hashError) {
-              console.warn("Hash whitelist check failed, continuing:", hashError);
+              console.warn(
+                "Hash whitelist check failed, continuing:",
+                hashError,
+              );
               return { found: false };
             }
           })(),
         ]);
 
         // Handle vision detection blocking
-        if (visionResult.status === "fulfilled" && visionResult.value?.blocked) {
+        if (
+          visionResult.status === "fulfilled" &&
+          visionResult.value?.blocked
+        ) {
           setRegisterState({
             status: "error",
             progress: 0,
@@ -366,11 +381,12 @@ export function useIPRegistrationAgent() {
               account = toAccount({
                 address: addr as `0x${string}`,
                 async signMessage({ message }) {
-                  const messageParam = typeof message === 'string'
-                    ? message
-                    : 'raw' in message && message.raw instanceof Uint8Array
-                    ? { raw: message.raw as `0x${string}` }
-                    : message;
+                  const messageParam =
+                    typeof message === "string"
+                      ? message
+                      : "raw" in message && message.raw instanceof Uint8Array
+                        ? { raw: message.raw as `0x${string}` }
+                        : message;
 
                   return await walletClient.signMessage({
                     account: addr as `0x${string}`,
@@ -378,9 +394,7 @@ export function useIPRegistrationAgent() {
                   } as any);
                 },
                 async signTransaction(transaction) {
-                  return await walletClient.signTransaction(
-                    transaction as any,
-                  );
+                  return await walletClient.signTransaction(transaction as any);
                 },
                 async signTypedData(typedData) {
                   return await walletClient.signTypedData({
