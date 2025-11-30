@@ -444,23 +444,43 @@ export function useIPRegistrationAgent() {
         const addr = storyClientSetup.addr;
         const story = storyClientSetup.story;
 
-        // Build license terms for Story SDK
+        // Build license terms for Story SDK with proper field formatting
+        const defaultMintingFee = parseEther(
+          String(licenseSettings.licensePrice || 0),
+        );
+        const commercialRevShareBasisPoints =
+          Number(licenseSettings.revShare) || 0;
+
         const licenseTermsData = [
           {
-            terms: PILFlavor.commercialRemix({
-              commercialRevShare: Number(licenseSettings.revShare) || 0,
-              defaultMintingFee: parseEther(
-                String(licenseSettings.licensePrice || 0),
-              ),
+            terms: {
+              transferable: true,
+              royaltyPolicy:
+                "0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E" as `0x${string}`,
+              defaultMintingFee,
+              expiration: 0n,
+              commercialUse: true,
+              commercialAttribution: true,
+              commercializerChecker:
+                "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              commercializerCheckerData: "0x" as `0x${string}`,
+              commercialRevShare: commercialRevShareBasisPoints,
+              commercialRevCeiling: 0n,
+              derivativesAllowed: true,
+              derivativesAttribution: true,
+              derivativesApproval: false,
+              derivativesReciprocal: true,
+              derivativeRevCeiling: 0n,
               currency: WIP_TOKEN_ADDRESS,
-            }),
+              uri: "https://github.com/piplabs/pil-document/blob/ad67bb632a310d2557f8abcccd428e4c9c798db1/off-chain-terms/CommercialRemix.json",
+            },
             licensingConfig: {
               isSet: true,
-              mintingFee: parseEther(String(licenseSettings.licensePrice || 0)),
+              mintingFee: defaultMintingFee,
               licensingHook:
                 "0x0000000000000000000000000000000000000000" as `0x${string}`,
               hookData: "0x" as `0x${string}`,
-              commercialRevShare: Number(licenseSettings.revShare) || 0,
+              commercialRevShare: commercialRevShareBasisPoints,
               disabled: false,
               expectMinimumGroupRewardShare: 0,
               expectGroupRewardPool:
