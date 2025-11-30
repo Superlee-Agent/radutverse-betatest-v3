@@ -130,7 +130,7 @@ export const DashboardLayout = ({
                   <div className="flex-1">{renderBrandHeader()}</div>
                   <button
                     onClick={() => setSidebarOpen(false)}
-                    className="p-2 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 transition-colors"
+                    className="p-3 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 transition-colors"
                     aria-label="Close menu"
                   >
                     ✕
