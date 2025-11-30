@@ -202,10 +202,16 @@ const LicensingFormComponent = (
         const walletAccount = toAccount({
           address: addr as `0x${string}`,
           async signMessage({ message }) {
+            const messageParam = typeof message === 'string'
+              ? message
+              : 'raw' in message && message.raw instanceof Uint8Array
+              ? { raw: message.raw as `0x${string}` }
+              : message;
+
             return await walletClient.signMessage({
               account: addr as `0x${string}`,
-              message: typeof message === 'string' ? message : { raw: message.raw as `0x${string}` },
-            });
+              message: messageParam,
+            } as any);
           },
           async signTransaction(transaction) {
             return await walletClient.signTransaction(
@@ -219,7 +225,7 @@ const LicensingFormComponent = (
               types: typedData.types as any,
               primaryType: typedData.primaryType as any,
               message: typedData.message as any,
-            });
+            } as any);
           },
         });
 
