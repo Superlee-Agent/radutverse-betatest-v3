@@ -159,7 +159,7 @@ export const DashboardLayout = ({
             >
               <button
                 type="button"
-                className="md:hidden p-2 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 active:scale-[0.98] transition-all"
+                className="md:hidden p-3 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 active:scale-[0.98] transition-all"
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open sidebar"
               >
