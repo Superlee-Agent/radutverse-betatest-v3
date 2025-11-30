@@ -193,35 +193,33 @@ const LicensingFormComponent = (
 
       let storyClient: StoryClient;
       if (ethProvider) {
-        // Create a custom account that delegates signing to the wallet provider
+        // Create wallet client to use wallet's signing methods
+        const walletClient = createWalletClient({
+          transport: custom(ethProvider),
+        });
+
+        // Create a custom account that delegates signing to the wallet client
         const walletAccount = toAccount({
           address: addr as `0x${string}`,
           async signMessage({ message }) {
-            const messageContent = typeof message === 'string'
-              ? message
-              : message.raw instanceof Uint8Array
-              ? new TextDecoder().decode(message.raw)
-              : String(message.raw);
-
-            const signature = await ethProvider.request({
-              method: 'personal_sign',
-              params: [messageContent, addr],
+            return await walletClient.signMessage({
+              account: addr as `0x${string}`,
+              message: typeof message === 'string' ? message : { raw: message.raw as `0x${string}` },
             });
-            return signature as `0x${string}`;
           },
           async signTransaction(transaction) {
-            const signedTx = await ethProvider.request({
-              method: 'eth_signTransaction',
-              params: [transaction],
-            });
-            return signedTx as `0x${string}`;
+            return await walletClient.signTransaction(
+              transaction as any,
+            );
           },
           async signTypedData(typedData) {
-            const signature = await ethProvider.request({
-              method: 'eth_signTypedData_v4',
-              params: [addr, JSON.stringify(typedData)],
+            return await walletClient.signTypedData({
+              account: addr as `0x${string}`,
+              domain: typedData.domain as any,
+              types: typedData.types as any,
+              primaryType: typedData.primaryType as any,
+              message: typedData.message as any,
             });
-            return signature as `0x${string}`;
           },
         });
 
