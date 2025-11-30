@@ -98,7 +98,7 @@ const ChatInput = ({
           <PopoverContent
             side="top"
             align="start"
-            className="w-56 p-3 bg-slate-900/95 border border-[#FF4DA6]/20 rounded-lg backdrop-blur-sm"
+            className="w-full max-w-[85vw] sm:w-56 p-3 bg-slate-900/95 border border-[#FF4DA6]/20 rounded-lg backdrop-blur-sm"
           >
             <div className="text-xs text-slate-400 font-semibold mb-2">
               Your creations
@@ -129,7 +129,7 @@ const ChatInput = ({
       </div>
     ) : null}
 
-    <div className="flex-1 flex flex-col gap-2 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
+    <div className="flex-1 flex flex-col gap-2 min-w-0 bg-slate-900/60 rounded-2xl pl-2 pr-4 py-2 focus-within:ring-2 focus-within:ring-[#FF4DA6]/30 transition-all duration-300">
       <RemixImage
         previewImages={previewImages}
         setPreviewImages={setPreviewImages}
@@ -141,7 +141,7 @@ const ChatInput = ({
           type="button"
           data-file-input-btn
           disabled={attachmentLoading}
-          className={`flex-shrink-0 p-1.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
+          className={`flex-shrink-0 p-2.5 rounded-lg active:scale-95 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4DA6]/30 ${attachmentLoading ? "text-slate-400 bg-slate-800/30 cursor-wait" : "text-[#FF4DA6] hover:bg-[#FF4DA6]/20"}`}
           onClick={() => uploadRef.current?.click()}
           onPointerDown={(event) => event.preventDefault()}
           aria-label="Add attachment"

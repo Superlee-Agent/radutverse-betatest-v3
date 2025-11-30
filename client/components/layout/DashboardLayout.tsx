@@ -64,7 +64,7 @@ export const DashboardLayout = ({
                 to={item.to}
                 className={({ isActive }) => {
                   const baseClasses =
-                    "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors";
+                    "flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors min-w-0";
                   const activeClasses = "bg-[#FF4DA6]/15 text-[#FF4DA6]";
                   const inactiveClasses =
                     "text-slate-400 hover:text-slate-200 hover:bg-white/5";
@@ -75,10 +75,10 @@ export const DashboardLayout = ({
                 }}
                 onClick={() => closeSidebar?.()}
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-800/50 text-slate-500">
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-800/50 text-slate-500 flex-shrink-0">
                   <ItemIcon className="h-4 w-4" />
                 </span>
-                <span>{item.label}</span>
+                <span className="min-w-0 truncate">{item.label}</span>
               </NavLink>
             </li>
           );
@@ -120,7 +120,7 @@ export const DashboardLayout = ({
                 exit={{ opacity: 0 }}
               />
               <motion.aside
-                className="relative w-64 bg-slate-950/90 text-slate-100 py-6 px-4 h-full overflow-y-auto"
+                className="relative w-[85vw] max-w-[320px] bg-slate-950/90 text-slate-100 py-6 px-4 h-full overflow-y-auto"
                 initial={{ x: -24, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -24, opacity: 0 }}
@@ -130,7 +130,7 @@ export const DashboardLayout = ({
                   <div className="flex-1">{renderBrandHeader()}</div>
                   <button
                     onClick={() => setSidebarOpen(false)}
-                    className="p-2 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 transition-colors"
+                    className="p-3 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 transition-colors"
                     aria-label="Close menu"
                   >
                     ✕
@@ -159,7 +159,7 @@ export const DashboardLayout = ({
             >
               <button
                 type="button"
-                className="md:hidden p-2 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 active:scale-[0.98] transition-all"
+                className="md:hidden p-3 rounded-md border-0 bg-transparent text-[#FF4DA6] hover:bg-[#FF4DA6]/10 active:scale-[0.98] transition-all"
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open sidebar"
               >

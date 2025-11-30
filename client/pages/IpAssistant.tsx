@@ -2248,15 +2248,21 @@ const IpAssistant = () => {
                             ? undefined
                             : (window as any).ethereum;
                           try {
-                            if (
-                              !guestMode &&
-                              wallets &&
-                              wallets[0]?.getEthereumProvider
-                            ) {
-                              ethProvider =
-                                await wallets[0].getEthereumProvider();
+                            if (!guestMode && wallets && wallets.length > 0) {
+                              const wallet = wallets[0];
+                              if (
+                                typeof wallet.getEthereumProvider === "function"
+                              ) {
+                                ethProvider =
+                                  await wallet.getEthereumProvider();
+                              }
                             }
-                          } catch {}
+                          } catch (err) {
+                            console.warn(
+                              "Failed to get ethereum provider:",
+                              err,
+                            );
+                          }
                           const mf =
                             mintingFee === "" ? undefined : Number(mintingFee);
                           const rs =

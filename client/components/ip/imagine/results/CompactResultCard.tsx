@@ -258,7 +258,7 @@ const CompactResultCard = ({
         >
           <button
             onClick={onDownload}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
+            className="px-2 sm:px-4 py-3 sm:py-2.5 rounded-md bg-[#FF4DA6] hover:bg-[#FF4DA6]/80 text-white font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm min-h-[44px] whitespace-normal sm:whitespace-nowrap"
             title="Download"
           >
             <svg
@@ -279,7 +279,7 @@ const CompactResultCard = ({
 
           <button
             onClick={onShare}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
+            className="px-2 sm:px-4 py-3 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm min-h-[44px] whitespace-normal sm:whitespace-nowrap"
             title="Share"
           >
             <svg
@@ -301,7 +301,7 @@ const CompactResultCard = ({
           {onUpscale && type === "image" && (
             <button
               onClick={onUpscale}
-              className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
+              className="px-2 sm:px-4 py-3 sm:py-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm min-h-[44px] whitespace-normal sm:whitespace-nowrap"
               title="Upscale"
             >
               <svg
@@ -324,8 +324,8 @@ const CompactResultCard = ({
           <button
             onClick={handleLicenseClick}
             disabled={registrationState === "loading"}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-md bg-[#FF4DA6]/20 hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed text-[#FF4DA6] font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap border border-[#FF4DA6]/30"
-            title="Register & License IP"
+            className="px-2 sm:px-4 py-3 sm:py-2.5 rounded-md bg-[#FF4DA6]/20 hover:bg-[#FF4DA6]/30 disabled:opacity-50 disabled:cursor-not-allowed text-[#FF4DA6] font-medium transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm min-h-[44px] border border-[#FF4DA6]/30 whitespace-normal sm:whitespace-nowrap"
+            title="Get no watermark images"
           >
             {registrationState === "loading" ? (
               <>
@@ -347,7 +347,7 @@ const CompactResultCard = ({
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span>Licensing</span>
+                <span>Get no watermark images</span>
               </>
             )}
           </button>

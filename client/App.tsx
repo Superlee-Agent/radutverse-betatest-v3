@@ -11,7 +11,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 // Lazy load route components for code splitting
-const IpfiAssistant = lazy(() => import("@/pages/IpAssistant"));
+const IpfiAssistant = lazy(() => import("@/pages/IpfiAssistant"));
 const IpImagine = lazy(() => import("@/pages/IpImagine"));
 const IpImagineCreationResult = lazy(
   () => import("@/pages/IpImagineCreationResult"),
