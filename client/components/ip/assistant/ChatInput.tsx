@@ -98,7 +98,7 @@ const ChatInput = ({
           <PopoverContent
             side="top"
             align="start"
-            className="w-56 p-3 bg-slate-900/95 border border-[#FF4DA6]/20 rounded-lg backdrop-blur-sm"
+            className="w-full max-w-[85vw] sm:w-56 p-3 bg-slate-900/95 border border-[#FF4DA6]/20 rounded-lg backdrop-blur-sm"
           >
             <div className="text-xs text-slate-400 font-semibold mb-2">
               Your creations
