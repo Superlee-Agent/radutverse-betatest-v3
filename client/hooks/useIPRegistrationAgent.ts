@@ -448,18 +448,21 @@ export function useIPRegistrationAgent() {
         const defaultMintingFee = parseEther(
           String(licenseSettings.licensePrice || 0),
         );
-        const commercialRevShareBasisPoints = Number(licenseSettings.revShare) || 0;
+        const commercialRevShareBasisPoints =
+          Number(licenseSettings.revShare) || 0;
 
         const licenseTermsData = [
           {
             terms: {
               transferable: true,
-              royaltyPolicy: "0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E" as `0x${string}`,
+              royaltyPolicy:
+                "0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E" as `0x${string}`,
               defaultMintingFee,
               expiration: 0n,
               commercialUse: true,
               commercialAttribution: true,
-              commercializerChecker: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              commercializerChecker:
+                "0x0000000000000000000000000000000000000000" as `0x${string}`,
               commercializerCheckerData: "0x" as `0x${string}`,
               commercialRevShare: commercialRevShareBasisPoints,
               commercialRevCeiling: 0n,
