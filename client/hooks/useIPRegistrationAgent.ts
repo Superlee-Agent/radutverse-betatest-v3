@@ -449,7 +449,7 @@ export function useIPRegistrationAgent() {
           String(licenseSettings.licensePrice || 0),
         );
         const commercialRevShareBasisPoints =
-          Number(licenseSettings.revShare) || 0;
+          (Number(licenseSettings.revShare) || 0) * 10000;
 
         const licenseTermsData = [
           {
