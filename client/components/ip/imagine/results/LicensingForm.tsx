@@ -242,11 +242,16 @@ const LicensingFormComponent = (
           ? String(guestPk)
           : `0x${String(guestPk)}`;
         const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+
+        console.log("✅ Guest account created:", guestAccount.address);
+
         storyClient = StoryClient.newClient({
           account: guestAccount,
           transport: http(rpcUrl),
           chainId: 1514,
         });
+
+        console.log("✅ StoryClient initialized with guest account");
       }
 
       const file = await handleConvertImageToFile();
