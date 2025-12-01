@@ -475,7 +475,7 @@ export function useIPRegistrationAgent() {
               uri: "https://github.com/piplabs/pil-document/blob/ad67bb632a310d2557f8abcccd428e4c9c798db1/off-chain-terms/CommercialRemix.json",
             },
             licensingConfig: {
-              isSet: true,
+              isSet: false,
               mintingFee: defaultMintingFee,
               licensingHook:
                 "0x0000000000000000000000000000000000000000" as `0x${string}`,
