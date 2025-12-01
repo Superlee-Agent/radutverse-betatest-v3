@@ -460,9 +460,6 @@ export function useIPRegistrationAgent() {
         const ipMetadataURI = toIpfsUri(ipMetaCid);
         const ipMetadataHash = keccakOfJson(ipMetadata);
 
-        const addr = storyClientSetup.addr;
-        const story = storyClientSetup.story;
-
         // Build license terms for Story SDK with proper field formatting
         const defaultMintingFee = parseEther(
           String(licenseSettings.licensePrice || 0),
