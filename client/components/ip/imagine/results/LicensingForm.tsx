@@ -329,11 +329,14 @@ const LicensingFormComponent = (
       // ========================================
       // STEP 0: CREATE NFT COLLECTION ON MAINNET
       // ========================================
-      console.log("📝 Step 0: Creating NFT collection on mainnet...");
+      const collectionStatus = isGuestMode
+        ? "Creating NFT collection (auto-signing)..."
+        : "Creating NFT collection...";
+      console.log("📝 Step 0:", collectionStatus);
       setCurrentStep("creating-collection");
       onRegisterStart &&
         onRegisterStart({
-          status: "Creating NFT collection...",
+          status: collectionStatus,
           progress: 25,
           error: null,
         });
@@ -348,8 +351,9 @@ const LicensingFormComponent = (
       let spg: Address;
       try {
         console.log(
-          "Creating NFT collection with account:",
+          "📤 Creating NFT collection with account:",
           storyClient.account?.address,
+          isGuestMode ? "(auto-signed)" : "(wallet signature required)",
         );
         const newCollection = await storyClient.nftClient.createNFTCollection({
           name: `Derivative Collection ${Date.now()}`,
