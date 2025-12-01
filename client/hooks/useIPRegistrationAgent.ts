@@ -378,37 +378,33 @@ export function useIPRegistrationAgent() {
               account = toAccount({
                 address: addr as `0x${string}`,
                 async signMessage({ message }) {
-                  const messageParam =
-                    typeof message === "string"
-                      ? message
-                      : "raw" in message && message.raw instanceof Uint8Array
-                        ? { raw: message.raw as `0x${string}` }
-                        : message;
-
                   return await walletClient.signMessage({
                     account: addr as `0x${string}`,
-                    message: messageParam,
-                  } as any);
+                    message: message as any,
+                  });
                 },
-                async signTransaction(transaction) {
-                  return await walletClient.signTransaction(transaction as any);
+                async signTransaction(tx) {
+                  return await walletClient.signTransaction(tx as any);
                 },
-                async signTypedData(typedData) {
-                  return await walletClient.signTypedData({
-                    account: addr as `0x${string}`,
-                    domain: typedData.domain as any,
-                    types: typedData.types as any,
-                    primaryType: typedData.primaryType as any,
-                    message: typedData.message as any,
-                  } as any);
+                async signTypedData(data) {
+                  return await walletClient.signTypedData(data as any);
                 },
               });
+
+              // Validate account creation
+              if (!account) {
+                throw new Error("Failed to create account from wallet");
+              }
+
+              console.log("✅ Account created successfully:", account.address);
 
               story = StoryClient.newClient({
                 account: account,
                 transport: custom(provider),
                 chainId: 1514,
               });
+
+              console.log("✅ StoryClient initialized with account");
             } else {
               const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
               if (!guestPk)
@@ -422,11 +418,16 @@ export function useIPRegistrationAgent() {
                 normalized as `0x${string}`,
               );
               addr = guestAccount.address;
+
+              console.log("✅ Guest account created:", guestAccount.address);
+
               story = StoryClient.newClient({
                 account: guestAccount,
                 transport: http(rpcUrl),
                 chainId: 1514,
               });
+
+              console.log("✅ StoryClient initialized with guest account");
             }
             return { addr, story };
           })(),
@@ -435,6 +436,8 @@ export function useIPRegistrationAgent() {
         // Create NFT collection on mainnet (instead of using testnet address)
         const addr = storyClientSetup.addr;
         const story = storyClientSetup.story;
+        const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+        const isGuestMode = !!guestPk && !ethereumProvider;
 
         // Validate that story client is properly initialized with account
         if (!story || !story.account) {
@@ -446,8 +449,9 @@ export function useIPRegistrationAgent() {
         let spg: string;
         try {
           console.log(
-            "Creating NFT collection with account:",
+            "📤 Creating NFT collection with account:",
             story.account?.address,
+            isGuestMode ? "(auto-signed)" : "(wallet signature required)",
           );
           const newCollection = await story.nftClient.createNFTCollection({
             name: `IP Asset Collection ${Date.now()}`,
@@ -516,7 +520,15 @@ export function useIPRegistrationAgent() {
           },
         ];
 
-        setRegisterState((p) => ({ ...p, status: "minting", progress: 75 }));
+        const mintingStatus = isGuestMode
+          ? "Minting & registering (auto-signing)..."
+          : "Minting & registering...";
+        setRegisterState((p) => ({
+          ...p,
+          status: "minting",
+          progress: 75,
+        }));
+        console.log("📝", mintingStatus);
 
         // Approve WIP token spending for SPG contract before minting
         const mintingFeeWei = parseEther(
@@ -526,6 +538,7 @@ export function useIPRegistrationAgent() {
           try {
             if (ethereumProvider) {
               // Use connected wallet's client for approval
+              console.log("🔐 Requesting wallet approval...");
               const walletClientForApproval = createWalletClient({
                 transport: custom(ethereumProvider),
               });
@@ -537,7 +550,10 @@ export function useIPRegistrationAgent() {
                 args: [spg as `0x${string}`, mintingFeeWei],
               } as any);
             } else {
-              // Use story client's account to write approval
+              // Use story client's account to write approval (auto-signed in guest mode)
+              console.log(
+                "📤 Approving token spending (auto-signed in guest mode)...",
+              );
               const wipApprovalHash = await story.client.writeContract({
                 address: WIP_TOKEN_ADDRESS as `0x${string}`,
                 abi: erc20Abi,
@@ -545,14 +561,19 @@ export function useIPRegistrationAgent() {
                 args: [spg as `0x${string}`, mintingFeeWei],
                 account: story.account,
               } as any);
-              console.log("WIP approval tx:", wipApprovalHash);
+              console.log("✅ WIP approval tx:", wipApprovalHash);
             }
           } catch (approvalError) {
-            console.warn("Token approval failed:", approvalError);
+            console.warn("⚠️ Token approval failed:", approvalError);
             // Continue anyway - some contracts may not require explicit approval
           }
         }
 
+        console.log(
+          "📤 Minting NFT and registering IP asset with account:",
+          addr,
+          isGuestMode ? "(auto-signed)" : "(wallet signature required)",
+        );
         const result: any =
           await story.ipAsset.mintAndRegisterIpAssetWithPilTerms({
             spgNftContract: spg as `0x${string}`,

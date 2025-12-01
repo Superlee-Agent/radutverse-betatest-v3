@@ -148,6 +148,7 @@ const LicensingFormComponent = (
 
     let addr: Address | undefined;
     let childIpId: Address | undefined;
+    let isGuestMode = false;
 
     try {
       // --- 2. SETUP WALLET & CLIENT ---
@@ -175,18 +176,17 @@ const LicensingFormComponent = (
         }
       }
 
-      if (!addr) {
+      // If no wallet connected, use guest account
+      const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+      if (!addr && guestPk) {
         try {
-          const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
-          if (guestPk) {
-            const normalized = String(guestPk).startsWith("0x")
-              ? String(guestPk)
-              : `0x${String(guestPk)}`;
-            const guestAccount = privateKeyToAccount(
-              normalized as `0x${string}`,
-            );
-            addr = guestAccount.address;
-          }
+          const normalized = String(guestPk).startsWith("0x")
+            ? String(guestPk)
+            : `0x${String(guestPk)}`;
+          const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+          addr = guestAccount.address;
+          isGuestMode = true;
+          console.log("🔓 Using guest mode for registration");
         } catch (err) {
           console.warn("Failed to create guest account:", err);
         }
@@ -208,49 +208,52 @@ const LicensingFormComponent = (
         const walletAccount = toAccount({
           address: addr as `0x${string}`,
           async signMessage({ message }) {
-            const messageParam =
-              typeof message === "string"
-                ? message
-                : "raw" in message && message.raw instanceof Uint8Array
-                  ? { raw: message.raw as `0x${string}` }
-                  : message;
-
             return await walletClient.signMessage({
               account: addr as `0x${string}`,
-              message: messageParam,
-            } as any);
+              message: message as any,
+            });
           },
-          async signTransaction(transaction) {
-            return await walletClient.signTransaction(transaction as any);
+          async signTransaction(tx) {
+            return await walletClient.signTransaction(tx as any);
           },
-          async signTypedData(typedData) {
-            return await walletClient.signTypedData({
-              account: addr as `0x${string}`,
-              domain: typedData.domain as any,
-              types: typedData.types as any,
-              primaryType: typedData.primaryType as any,
-              message: typedData.message as any,
-            } as any);
+          async signTypedData(data) {
+            return await walletClient.signTypedData(data as any);
           },
         });
+
+        // Validate account creation
+        if (!walletAccount) {
+          throw new Error("Failed to create account from wallet");
+        }
+
+        console.log("✅ Wallet account created:", walletAccount.address);
 
         storyClient = StoryClient.newClient({
           account: walletAccount,
           transport: custom(ethProvider),
           chainId: 1514,
         });
+
+        console.log("✅ StoryClient initialized with wallet account");
       } else {
-        const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+        // Guest mode: Use guest account without user wallet
         if (!guestPk) throw new Error("Guest key not configured");
         const normalized = String(guestPk).startsWith("0x")
           ? String(guestPk)
           : `0x${String(guestPk)}`;
         const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
+
+        console.log("✅ Guest account initialized:", guestAccount.address);
+
         storyClient = StoryClient.newClient({
           account: guestAccount,
           transport: http(rpcUrl),
           chainId: 1514,
         });
+
+        console.log(
+          "✅ StoryClient initialized - transactions will be signed automatically",
+        );
       }
 
       const file = await handleConvertImageToFile();
@@ -326,11 +329,14 @@ const LicensingFormComponent = (
       // ========================================
       // STEP 0: CREATE NFT COLLECTION ON MAINNET
       // ========================================
-      console.log("📝 Step 0: Creating NFT collection on mainnet...");
+      const collectionStatus = isGuestMode
+        ? "Creating NFT collection (auto-signing)..."
+        : "Creating NFT collection...";
+      console.log("📝 Step 0:", collectionStatus);
       setCurrentStep("creating-collection");
       onRegisterStart &&
         onRegisterStart({
-          status: "Creating NFT collection...",
+          status: collectionStatus,
           progress: 25,
           error: null,
         });
@@ -345,8 +351,9 @@ const LicensingFormComponent = (
       let spg: Address;
       try {
         console.log(
-          "Creating NFT collection with account:",
+          "📤 Creating NFT collection with account:",
           storyClient.account?.address,
+          isGuestMode ? "(auto-signed)" : "(wallet signature required)",
         );
         const newCollection = await storyClient.nftClient.createNFTCollection({
           name: `Derivative Collection ${Date.now()}`,
@@ -369,16 +376,24 @@ const LicensingFormComponent = (
       // ========================================
       // STEP 1: REGISTER DERIVATIVE IP ASSET (Combined operation)
       // ========================================
-      console.log("📝 Step 1: Registering derivative IP asset...");
+      const registrationStatus = isGuestMode
+        ? "Registering derivative IP asset (auto-signing)..."
+        : "Registering derivative IP asset...";
+      console.log("📝 Step 1:", registrationStatus);
       setCurrentStep("registering-derivative");
       onRegisterStart &&
         onRegisterStart({
-          status: "Registering derivative IP asset...",
+          status: registrationStatus,
           progress: 50,
           error: null,
         });
 
       try {
+        console.log(
+          "📤 Registering derivative with account:",
+          storyClient.account?.address,
+          isGuestMode ? "(auto-signed)" : "(wallet signature required)",
+        );
         const derivativeResponse =
           await storyClient.ipAsset.registerDerivativeIpAsset({
             nft: { type: "mint", spgNftContract: spg },
