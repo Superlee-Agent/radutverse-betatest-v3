@@ -208,37 +208,33 @@ const LicensingFormComponent = (
         const walletAccount = toAccount({
           address: addr as `0x${string}`,
           async signMessage({ message }) {
-            const messageParam =
-              typeof message === "string"
-                ? message
-                : "raw" in message && message.raw instanceof Uint8Array
-                  ? { raw: message.raw as `0x${string}` }
-                  : message;
-
             return await walletClient.signMessage({
               account: addr as `0x${string}`,
-              message: messageParam,
-            } as any);
+              message: message as any,
+            });
           },
-          async signTransaction(transaction) {
-            return await walletClient.signTransaction(transaction as any);
+          async signTransaction(tx) {
+            return await walletClient.signTransaction(tx as any);
           },
-          async signTypedData(typedData) {
-            return await walletClient.signTypedData({
-              account: addr as `0x${string}`,
-              domain: typedData.domain as any,
-              types: typedData.types as any,
-              primaryType: typedData.primaryType as any,
-              message: typedData.message as any,
-            } as any);
+          async signTypedData(data) {
+            return await walletClient.signTypedData(data as any);
           },
         });
+
+        // Validate account creation
+        if (!walletAccount) {
+          throw new Error("Failed to create account from wallet");
+        }
+
+        console.log("✅ Wallet account created:", walletAccount.address);
 
         storyClient = StoryClient.newClient({
           account: walletAccount,
           transport: custom(ethProvider),
           chainId: 1514,
         });
+
+        console.log("✅ StoryClient initialized with wallet account");
       } else {
         const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
         if (!guestPk) throw new Error("Guest key not configured");
