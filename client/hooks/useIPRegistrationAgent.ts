@@ -12,6 +12,7 @@ import {
   StoryClient,
   PILFlavor,
   WIP_TOKEN_ADDRESS,
+  zeroAddress,
 } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
