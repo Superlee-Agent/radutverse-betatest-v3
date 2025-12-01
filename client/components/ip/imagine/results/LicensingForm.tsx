@@ -266,9 +266,6 @@ const LicensingFormComponent = (
       if (!uploadRes.ok) throw new Error("Failed to upload image to IPFS");
       const { url: imageUri } = await uploadRes.json();
 
-      const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
-      if (!spg) throw new Error("SPG collection not configured");
-
       const ipMetadataObj = {
         title: title || "AI Generated Image",
         description:
@@ -327,6 +324,38 @@ const LicensingFormComponent = (
       const { url: nftMetadataUri } = await nftMetadataUploadRes.json();
 
       // ========================================
+      // STEP 0: CREATE NFT COLLECTION ON MAINNET
+      // ========================================
+      console.log("📝 Step 0: Creating NFT collection on mainnet...");
+      setCurrentStep("creating-collection");
+      onRegisterStart &&
+        onRegisterStart({
+          status: "Creating NFT collection...",
+          progress: 25,
+          error: null,
+        });
+
+      let spg: Address;
+      try {
+        const newCollection = await storyClient.nftClient.createNFTCollection({
+          name: `Derivative Collection ${Date.now()}`,
+          symbol: `DER${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+          isPublicMinting: true,
+          mintOpen: true,
+          mintFeeRecipient:
+            "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          contractURI: "",
+        });
+        spg = newCollection.spgNftContract as Address;
+        console.log("✅ NFT Collection Created:", spg);
+      } catch (collectionError) {
+        console.error("Failed to create NFT collection:", collectionError);
+        throw new Error(
+          `Failed to create NFT collection: ${collectionError instanceof Error ? collectionError.message : String(collectionError)}`,
+        );
+      }
+
+      // ========================================
       // STEP 1: REGISTER DERIVATIVE IP ASSET (Combined operation)
       // ========================================
       console.log("📝 Step 1: Registering derivative IP asset...");
@@ -341,7 +370,7 @@ const LicensingFormComponent = (
       try {
         const derivativeResponse =
           await storyClient.ipAsset.registerDerivativeIpAsset({
-            nft: { type: "mint", spgNftContract: spg as Address },
+            nft: { type: "mint", spgNftContract: spg },
             derivData: {
               parentIpIds: [parentAsset.ipId],
               licenseTermsIds: [BigInt(parentLicense.licenseTermsId)],

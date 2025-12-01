@@ -316,15 +316,10 @@ export function useIPRegistrationAgent() {
         }));
 
         // Prepare resources in parallel
-        const spg = (import.meta as any).env?.VITE_PUBLIC_SPG_COLLECTION;
-        if (!spg)
-          throw new Error(
-            "SPG collection env not set (VITE_PUBLIC_SPG_COLLECTION)",
-          );
         const rpcUrl = (import.meta as any).env?.VITE_PUBLIC_STORY_RPC;
         if (!rpcUrl) throw new Error("RPC URL not set (VITE_PUBLIC_STORY_RPC)");
 
-        // Parallel: upload metadata + initialize wallet client + build license terms
+        // Parallel: upload metadata + initialize wallet client
         const [ipMetaUpload, storyClientSetup] = await Promise.all([
           uploadJSON(ipMetadata),
           (async () => {
@@ -437,12 +432,33 @@ export function useIPRegistrationAgent() {
           })(),
         ]);
 
+        // Create NFT collection on mainnet (instead of using testnet address)
+        const addr = storyClientSetup.addr;
+        const story = storyClientSetup.story;
+
+        let spg: string;
+        try {
+          const newCollection = await story.nftClient.createNFTCollection({
+            name: `IP Asset Collection ${Date.now()}`,
+            symbol: `IPA${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+            isPublicMinting: true,
+            mintOpen: true,
+            mintFeeRecipient:
+              "0x0000000000000000000000000000000000000000" as `0x${string}`,
+            contractURI: "",
+          });
+          spg = newCollection.spgNftContract;
+          console.log("Created NFT Collection:", spg);
+        } catch (collectionError) {
+          console.error("Failed to create NFT collection:", collectionError);
+          throw new Error(
+            `Failed to create NFT collection: ${collectionError instanceof Error ? collectionError.message : String(collectionError)}`,
+          );
+        }
+
         const ipMetaCid = extractCid(ipMetaUpload.cid || ipMetaUpload.url);
         const ipMetadataURI = toIpfsUri(ipMetaCid);
         const ipMetadataHash = keccakOfJson(ipMetadata);
-
-        const addr = storyClientSetup.addr;
-        const story = storyClientSetup.story;
 
         // Build license terms for Story SDK with proper field formatting
         const defaultMintingFee = parseEther(
