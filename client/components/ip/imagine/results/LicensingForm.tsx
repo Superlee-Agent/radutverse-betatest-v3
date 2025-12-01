@@ -335,8 +335,19 @@ const LicensingFormComponent = (
           error: null,
         });
 
+      // Validate that storyClient is properly initialized with account
+      if (!storyClient || !storyClient.account) {
+        throw new Error(
+          "StoryClient not properly initialized with account. Please ensure wallet is connected or guest key is configured.",
+        );
+      }
+
       let spg: Address;
       try {
+        console.log(
+          "Creating NFT collection with account:",
+          storyClient.account?.address,
+        );
         const newCollection = await storyClient.nftClient.createNFTCollection({
           name: `Derivative Collection ${Date.now()}`,
           symbol: `DER${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
@@ -349,7 +360,7 @@ const LicensingFormComponent = (
         spg = newCollection.spgNftContract as Address;
         console.log("✅ NFT Collection Created:", spg);
       } catch (collectionError) {
-        console.error("Failed to create NFT collection:", collectionError);
+        console.error("❌ Failed to create NFT collection:", collectionError);
         throw new Error(
           `Failed to create NFT collection: ${collectionError instanceof Error ? collectionError.message : String(collectionError)}`,
         );
