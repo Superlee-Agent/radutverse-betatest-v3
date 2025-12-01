@@ -520,7 +520,15 @@ export function useIPRegistrationAgent() {
           },
         ];
 
-        setRegisterState((p) => ({ ...p, status: "minting", progress: 75 }));
+        const mintingStatus = isGuestMode
+          ? "Minting & registering (auto-signing)..."
+          : "Minting & registering...";
+        setRegisterState((p) => ({
+          ...p,
+          status: "minting",
+          progress: 75,
+        }));
+        console.log("📝", mintingStatus);
 
         // Approve WIP token spending for SPG contract before minting
         const mintingFeeWei = parseEther(
@@ -530,6 +538,7 @@ export function useIPRegistrationAgent() {
           try {
             if (ethereumProvider) {
               // Use connected wallet's client for approval
+              console.log("🔐 Requesting wallet approval...");
               const walletClientForApproval = createWalletClient({
                 transport: custom(ethereumProvider),
               });
@@ -541,7 +550,10 @@ export function useIPRegistrationAgent() {
                 args: [spg as `0x${string}`, mintingFeeWei],
               } as any);
             } else {
-              // Use story client's account to write approval
+              // Use story client's account to write approval (auto-signed in guest mode)
+              console.log(
+                "📤 Approving token spending (auto-signed in guest mode)...",
+              );
               const wipApprovalHash = await story.client.writeContract({
                 address: WIP_TOKEN_ADDRESS as `0x${string}`,
                 abi: erc20Abi,
@@ -549,14 +561,19 @@ export function useIPRegistrationAgent() {
                 args: [spg as `0x${string}`, mintingFeeWei],
                 account: story.account,
               } as any);
-              console.log("WIP approval tx:", wipApprovalHash);
+              console.log("✅ WIP approval tx:", wipApprovalHash);
             }
           } catch (approvalError) {
-            console.warn("Token approval failed:", approvalError);
+            console.warn("⚠️ Token approval failed:", approvalError);
             // Continue anyway - some contracts may not require explicit approval
           }
         }
 
+        console.log(
+          "📤 Minting NFT and registering IP asset with account:",
+          addr,
+          isGuestMode ? "(auto-signed)" : "(wallet signature required)",
+        );
         const result: any =
           await story.ipAsset.mintAndRegisterIpAssetWithPilTerms({
             spgNftContract: spg as `0x${string}`,
