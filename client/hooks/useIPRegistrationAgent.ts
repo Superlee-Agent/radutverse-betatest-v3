@@ -503,6 +503,7 @@ export function useIPRegistrationAgent() {
                 transport: custom(ethereumProvider),
               });
               await walletClientForApproval.writeContract({
+                account: addr as `0x${string}`,
                 address: WIP_TOKEN_ADDRESS as `0x${string}`,
                 abi: erc20Abi,
                 functionName: "approve",
