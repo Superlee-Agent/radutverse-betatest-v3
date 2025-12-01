@@ -183,9 +183,7 @@ const LicensingFormComponent = (
           const normalized = String(guestPk).startsWith("0x")
             ? String(guestPk)
             : `0x${String(guestPk)}`;
-          const guestAccount = privateKeyToAccount(
-            normalized as `0x${string}`,
-          );
+          const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
           addr = guestAccount.address;
           isGuestMode = true;
           console.log("🔓 Using guest mode for registration");
@@ -253,7 +251,9 @@ const LicensingFormComponent = (
           chainId: 1514,
         });
 
-        console.log("✅ StoryClient initialized - transactions will be signed automatically");
+        console.log(
+          "✅ StoryClient initialized - transactions will be signed automatically",
+        );
       }
 
       const file = await handleConvertImageToFile();
