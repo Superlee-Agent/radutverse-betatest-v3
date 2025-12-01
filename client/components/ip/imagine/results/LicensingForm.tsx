@@ -238,14 +238,14 @@ const LicensingFormComponent = (
 
         console.log("✅ StoryClient initialized with wallet account");
       } else {
-        const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+        // Guest mode: Use guest account without user wallet
         if (!guestPk) throw new Error("Guest key not configured");
         const normalized = String(guestPk).startsWith("0x")
           ? String(guestPk)
           : `0x${String(guestPk)}`;
         const guestAccount = privateKeyToAccount(normalized as `0x${string}`);
 
-        console.log("✅ Guest account created:", guestAccount.address);
+        console.log("✅ Guest account initialized:", guestAccount.address);
 
         storyClient = StoryClient.newClient({
           account: guestAccount,
@@ -253,7 +253,7 @@ const LicensingFormComponent = (
           chainId: 1514,
         });
 
-        console.log("✅ StoryClient initialized with guest account");
+        console.log("✅ StoryClient initialized - transactions will be signed automatically");
       }
 
       const file = await handleConvertImageToFile();
