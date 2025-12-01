@@ -476,11 +476,11 @@ export function useIPRegistrationAgent() {
             },
             licensingConfig: {
               isSet: false,
-              mintingFee: defaultMintingFee,
+              mintingFee: 0n,
               licensingHook:
                 "0x0000000000000000000000000000000000000000" as `0x${string}`,
               hookData: "0x" as `0x${string}`,
-              commercialRevShare: commercialRevShareBasisPoints,
+              commercialRevShare: 0,
               disabled: false,
               expectMinimumGroupRewardShare: 0,
               expectGroupRewardPool:
