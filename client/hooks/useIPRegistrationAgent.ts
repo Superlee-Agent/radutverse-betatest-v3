@@ -436,6 +436,8 @@ export function useIPRegistrationAgent() {
         // Create NFT collection on mainnet (instead of using testnet address)
         const addr = storyClientSetup.addr;
         const story = storyClientSetup.story;
+        const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+        const isGuestMode = !!guestPk && !ethereumProvider;
 
         // Validate that story client is properly initialized with account
         if (!story || !story.account) {
@@ -447,8 +449,9 @@ export function useIPRegistrationAgent() {
         let spg: string;
         try {
           console.log(
-            "Creating NFT collection with account:",
+            "📤 Creating NFT collection with account:",
             story.account?.address,
+            isGuestMode ? "(auto-signed)" : "(wallet signature required)",
           );
           const newCollection = await story.nftClient.createNFTCollection({
             name: `IP Asset Collection ${Date.now()}`,
