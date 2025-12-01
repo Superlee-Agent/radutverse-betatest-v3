@@ -436,8 +436,16 @@ export function useIPRegistrationAgent() {
         const addr = storyClientSetup.addr;
         const story = storyClientSetup.story;
 
+        // Validate that story client is properly initialized with account
+        if (!story || !story.account) {
+          throw new Error(
+            "StoryClient not properly initialized with account. Please ensure wallet is connected or guest key is configured.",
+          );
+        }
+
         let spg: string;
         try {
+          console.log("Creating NFT collection with account:", story.account?.address);
           const newCollection = await story.nftClient.createNFTCollection({
             name: `IP Asset Collection ${Date.now()}`,
             symbol: `IPA${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
@@ -448,9 +456,9 @@ export function useIPRegistrationAgent() {
             contractURI: "",
           });
           spg = newCollection.spgNftContract;
-          console.log("Created NFT Collection:", spg);
+          console.log("✅ Created NFT Collection:", spg);
         } catch (collectionError) {
-          console.error("Failed to create NFT collection:", collectionError);
+          console.error("❌ Failed to create NFT collection:", collectionError);
           throw new Error(
             `Failed to create NFT collection: ${collectionError instanceof Error ? collectionError.message : String(collectionError)}`,
           );
