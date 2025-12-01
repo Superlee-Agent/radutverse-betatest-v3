@@ -148,6 +148,7 @@ const LicensingFormComponent = (
 
     let addr: Address | undefined;
     let childIpId: Address | undefined;
+    let isGuestMode = false;
 
     try {
       // --- 2. SETUP WALLET & CLIENT ---
@@ -175,18 +176,19 @@ const LicensingFormComponent = (
         }
       }
 
-      if (!addr) {
+      // If no wallet connected, use guest account
+      const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
+      if (!addr && guestPk) {
         try {
-          const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
-          if (guestPk) {
-            const normalized = String(guestPk).startsWith("0x")
-              ? String(guestPk)
-              : `0x${String(guestPk)}`;
-            const guestAccount = privateKeyToAccount(
-              normalized as `0x${string}`,
-            );
-            addr = guestAccount.address;
-          }
+          const normalized = String(guestPk).startsWith("0x")
+            ? String(guestPk)
+            : `0x${String(guestPk)}`;
+          const guestAccount = privateKeyToAccount(
+            normalized as `0x${string}`,
+          );
+          addr = guestAccount.address;
+          isGuestMode = true;
+          console.log("🔓 Using guest mode for registration");
         } catch (err) {
           console.warn("Failed to create guest account:", err);
         }
