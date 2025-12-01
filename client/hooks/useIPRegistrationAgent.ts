@@ -378,37 +378,33 @@ export function useIPRegistrationAgent() {
               account = toAccount({
                 address: addr as `0x${string}`,
                 async signMessage({ message }) {
-                  const messageParam =
-                    typeof message === "string"
-                      ? message
-                      : "raw" in message && message.raw instanceof Uint8Array
-                        ? { raw: message.raw as `0x${string}` }
-                        : message;
-
                   return await walletClient.signMessage({
                     account: addr as `0x${string}`,
-                    message: messageParam,
-                  } as any);
+                    message: message as any,
+                  });
                 },
-                async signTransaction(transaction) {
-                  return await walletClient.signTransaction(transaction as any);
+                async signTransaction(tx) {
+                  return await walletClient.signTransaction(tx as any);
                 },
-                async signTypedData(typedData) {
-                  return await walletClient.signTypedData({
-                    account: addr as `0x${string}`,
-                    domain: typedData.domain as any,
-                    types: typedData.types as any,
-                    primaryType: typedData.primaryType as any,
-                    message: typedData.message as any,
-                  } as any);
+                async signTypedData(data) {
+                  return await walletClient.signTypedData(data as any);
                 },
               });
+
+              // Validate account creation
+              if (!account) {
+                throw new Error("Failed to create account from wallet");
+              }
+
+              console.log("✅ Account created successfully:", account.address);
 
               story = StoryClient.newClient({
                 account: account,
                 transport: custom(provider),
                 chainId: 1514,
               });
+
+              console.log("✅ StoryClient initialized with account");
             } else {
               const guestPk = (import.meta as any).env?.VITE_GUEST_PRIVATE_KEY;
               if (!guestPk)
