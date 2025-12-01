@@ -376,16 +376,24 @@ const LicensingFormComponent = (
       // ========================================
       // STEP 1: REGISTER DERIVATIVE IP ASSET (Combined operation)
       // ========================================
-      console.log("📝 Step 1: Registering derivative IP asset...");
+      const registrationStatus = isGuestMode
+        ? "Registering derivative IP asset (auto-signing)..."
+        : "Registering derivative IP asset...";
+      console.log("📝 Step 1:", registrationStatus);
       setCurrentStep("registering-derivative");
       onRegisterStart &&
         onRegisterStart({
-          status: "Registering derivative IP asset...",
+          status: registrationStatus,
           progress: 50,
           error: null,
         });
 
       try {
+        console.log(
+          "📤 Registering derivative with account:",
+          storyClient.account?.address,
+          isGuestMode ? "(auto-signed)" : "(wallet signature required)",
+        );
         const derivativeResponse =
           await storyClient.ipAsset.registerDerivativeIpAsset({
             nft: { type: "mint", spgNftContract: spg },
