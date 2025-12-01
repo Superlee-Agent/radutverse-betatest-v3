@@ -1,6 +1,6 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { StoryClient, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import { StoryClient, WIP_TOKEN_ADDRESS, zeroAddress } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
   custom,
