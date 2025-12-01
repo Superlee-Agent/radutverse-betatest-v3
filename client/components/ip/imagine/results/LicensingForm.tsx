@@ -1,6 +1,6 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { StoryClient, WIP_TOKEN_ADDRESS, zeroAddress } from "@story-protocol/core-sdk";
+import { StoryClient, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
   custom,
@@ -342,7 +342,7 @@ const LicensingFormComponent = (
           symbol: `DER${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
           isPublicMinting: true,
           mintOpen: true,
-          mintFeeRecipient: zeroAddress,
+          mintFeeRecipient: "0x0000000000000000000000000000000000000000" as `0x${string}`,
           contractURI: "",
         });
         spg = newCollection.spgNftContract as Address;
