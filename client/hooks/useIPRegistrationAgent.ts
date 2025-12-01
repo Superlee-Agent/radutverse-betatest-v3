@@ -12,7 +12,6 @@ import {
   StoryClient,
   PILFlavor,
   WIP_TOKEN_ADDRESS,
-  zeroAddress,
 } from "@story-protocol/core-sdk";
 import {
   createWalletClient,
@@ -444,7 +443,7 @@ export function useIPRegistrationAgent() {
             symbol: `IPA${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
             isPublicMinting: true,
             mintOpen: true,
-            mintFeeRecipient: zeroAddress,
+            mintFeeRecipient: "0x0000000000000000000000000000000000000000" as `0x${string}`,
             contractURI: "",
           });
           spg = newCollection.spgNftContract;
