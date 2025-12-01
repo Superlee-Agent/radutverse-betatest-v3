@@ -418,11 +418,16 @@ export function useIPRegistrationAgent() {
                 normalized as `0x${string}`,
               );
               addr = guestAccount.address;
+
+              console.log("✅ Guest account created:", guestAccount.address);
+
               story = StoryClient.newClient({
                 account: guestAccount,
                 transport: http(rpcUrl),
                 chainId: 1514,
               });
+
+              console.log("✅ StoryClient initialized with guest account");
             }
             return { addr, story };
           })(),
