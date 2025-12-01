@@ -445,7 +445,10 @@ export function useIPRegistrationAgent() {
 
         let spg: string;
         try {
-          console.log("Creating NFT collection with account:", story.account?.address);
+          console.log(
+            "Creating NFT collection with account:",
+            story.account?.address,
+          );
           const newCollection = await story.nftClient.createNFTCollection({
             name: `IP Asset Collection ${Date.now()}`,
             symbol: `IPA${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
