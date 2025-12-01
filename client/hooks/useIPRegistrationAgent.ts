@@ -443,7 +443,8 @@ export function useIPRegistrationAgent() {
             symbol: `IPA${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
             isPublicMinting: true,
             mintOpen: true,
-            mintFeeRecipient: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+            mintFeeRecipient:
+              "0x0000000000000000000000000000000000000000" as `0x${string}`,
             contractURI: "",
           });
           spg = newCollection.spgNftContract;
